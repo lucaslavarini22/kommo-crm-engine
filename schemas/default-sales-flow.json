@@ -1,0 +1,107 @@
+{
+  "id": "fluxo_qualificacao_vendas_v1",
+  "name": "Qualificação Comercial Automática via WhatsApp (Kommo Model)",
+  "active": true,
+  "trigger": {
+    "type": "incoming_message",
+    "channel": "whatsapp"
+  },
+  "entryNodeId": "step_boas_vindas",
+  "nodes": {
+    "step_boas_vindas": {
+      "id": "step_boas_vindas",
+      "type": "message",
+      "title": "Boas-Vindas e Menu",
+      "content": "Olá, tudo bem? Seja muito bem-vindo! 👋\nComo nossa equipe pode te ajudar hoje?",
+      "options": [
+        {
+          "id": "opt_comprar",
+          "label": "1. Quero um Orçamento",
+          "synonyms": ["1", "orcamento", "orçamento", "comprar", "preco", "preço", "custo"],
+          "nextNodeId": "step_pergunta_faturamento"
+        },
+        {
+          "id": "opt_suporte",
+          "label": "2. Já sou Cliente / Suporte",
+          "synonyms": ["2", "suporte", "ajuda", "duvida", "problema"],
+          "nextNodeId": "step_transferir_suporte"
+        },
+        {
+          "id": "opt_humano",
+          "label": "3. Falar com Atendente",
+          "synonyms": ["3", "humano", "atendente", "pessoa", "vendedor"],
+          "nextNodeId": "step_transferir_humano"
+        }
+      ]
+    },
+    "step_pergunta_faturamento": {
+      "id": "step_pergunta_faturamento",
+      "type": "input_prompt",
+      "title": "Qualificação de Orçamento",
+      "content": "Excelente! Para direcionar o especialista certo para o seu projeto, qual é o seu faturamento mensal aproximado?",
+      "options": [
+        {
+          "id": "opt_fat_alto",
+          "label": "Acima de R$ 50 mil/mês",
+          "nextNodeId": "action_lead_enterprise"
+        },
+        {
+          "id": "opt_fat_baixo",
+          "label": "Até R$ 50 mil/mês",
+          "nextNodeId": "action_lead_standard"
+        }
+      ]
+    },
+    "action_lead_enterprise": {
+      "id": "action_lead_enterprise",
+      "type": "crm_action",
+      "title": "Automação CRM - Lead Enterprise",
+      "actions": [
+        { "action": "add_tag", "params": { "tag": "ENTERPRISE_VIP" } },
+        { "action": "move_stage", "params": { "stage": "qualificado_prioridade" } },
+        { "action": "create_task", "params": { "title": "Ligar em até 15 minutos para Lead VIP", "deadline_minutes": 15 } }
+      ],
+      "nextNodeId": "step_final_vip"
+    },
+    "action_lead_standard": {
+      "id": "action_lead_standard",
+      "type": "crm_action",
+      "title": "Automação CRM - Lead Padrão",
+      "actions": [
+        { "action": "add_tag", "params": { "tag": "LEAD_INBOUND" } },
+        { "action": "move_stage", "params": { "stage": "em_qualificacao" } }
+      ],
+      "nextNodeId": "step_final_standard"
+    },
+    "step_final_vip": {
+      "id": "step_final_vip",
+      "type": "message",
+      "title": "Confirmação VIP",
+      "content": "Perfeito! Já reservei um consultor sênior para falar com você agora mesmo. Só um instante que ele já vai assumir esta conversa!"
+    },
+    "step_final_standard": {
+      "id": "step_final_standard",
+      "type": "message",
+      "title": "Confirmação Padrão",
+      "content": "Muito obrigado pelas informações! Nossa equipe comercial já recebeu os seus dados e vai entrar em contato com você em breve."
+    },
+    "step_transferir_suporte": {
+      "id": "step_transferir_suporte",
+      "type": "human_handover",
+      "title": "Transfere Suporte",
+      "content": "Transferindo você para a nossa fila de suporte técnico... Só um minuto!",
+      "actions": [
+        { "action": "move_stage", "params": { "stage": "fila_suporte" } }
+      ]
+    },
+    "step_transferir_humano": {
+      "id": "step_transferir_humano",
+      "type": "human_handover",
+      "title": "Transfere Vendedor",
+      "content": "Estou chamando um de nossos consultores humanos para conversar com você!",
+      "actions": [
+        { "action": "move_stage", "params": { "stage": "atendimento_humano" } }
+      ]
+    }
+  }
+}

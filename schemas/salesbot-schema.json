@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "KommoSalesbotSchema",
+  "description": "Schema padronizado para serialização e execução de árvores de atendimento visual estilo Kommo Salesbot",
+  "type": "object",
+  "required": ["id", "name", "trigger", "entryNodeId", "nodes"],
+  "properties": {
+    "id": { "type": "string" },
+    "name": { "type": "string" },
+    "active": { "type": "boolean", "default": true },
+    "trigger": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["incoming_message", "keyword_match", "story_mention", "pipeline_stage_changed", "timer_inactivity"]
+        },
+        "channel": {
+          "type": "string",
+          "enum": ["whatsapp", "instagram", "telegram", "facebook", "webchat"]
+        },
+        "keywords": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "entryNodeId": { "type": "string" },
+    "nodes": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["id", "type"],
+        "properties": {
+          "id": { "type": "string" },
+          "type": {
+            "type": "string",
+            "enum": ["message", "quick_reply", "input_prompt", "condition", "crm_action", "delay_human", "human_handover"]
+          },
+          "content": { "type": "string" },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "label", "nextNodeId"],
+              "properties": {
+                "id": { "type": "string" },
+                "label": { "type": "string" },
+                "synonyms": { "type": "array", "items": { "type": "string" } },
+                "nextNodeId": { "type": "string" }
+              }
+            }
+          },
+          "actions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["action"],
+              "properties": {
+                "action": { "type": "string" },
+                "params": { "type": "object" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
